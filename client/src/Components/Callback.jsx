@@ -6,7 +6,15 @@ function Callback() {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+    console.log(urlParams)
+
+      // Log all query parameters
+  for (const [key, value] of urlParams.entries()) {
+    console.log(`Key: ${key}, Value: ${value}`);
+  }
+
+    const token = urlParams.get('code');
+    console.log(token)
 
     console.log("Token from URL:", token); 
 

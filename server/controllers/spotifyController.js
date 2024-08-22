@@ -43,14 +43,14 @@ const status = async (req, res) => {
 };
 
 const search = async (req, res) => {
-  const { query } = req.query;
+  const { query, type } = req.query;
 
-  if (!query) {
-    return res.status(400).json({ error: 'Query parameter is required' });
+  if (!query || !type) {
+    return res.status(400).json({ error: 'Query and type parameter is required' });
   }
 
   try {
-    const data = await spotifyApi.searchTracks(query);
+    const data = await spotifyApi.searchTracks(query, [type]);
     res.json(data.body);
   } catch (err) {
     res.status(400).json({ error: err.message });

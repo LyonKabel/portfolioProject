@@ -17,7 +17,7 @@ function App() {
       }
 
       try {
-        const response = await fetch('http://localhost:3000/spotify/v1/token', {
+        const response = await fetch('http://localhost:3000/status', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
