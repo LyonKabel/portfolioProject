@@ -1,19 +1,22 @@
-const { Sequelize } = require('sequelize');
-require('dotenv').config();
+// Search function
+const search = async (req, res) => {
+  const { query, type } = req.query; // Get query and type from the query parameters
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
-  host: '127.0.0.1', 
-  dialect: 'mysql',
-  logging: console.log 
-});
+  // Check if both query and type are provided
+  if (!query || !type) {
+    return res.status(400).json({ error: 'Query and type parameter are required' });
+  
+  }
 
-const testConnection = async () => {
   try {
-    await sequelize.authenticate();
-    console.log('Connection to MySQL has been established successfully.');
+    // Perform the search using the Spotify API
+    const data = await spotifyApi.search(query, [type]);
+    
+
+    // Return the relevant items based on the type
+    res.json(data.body[type + 's'] || []); // Ensure it returns the correct structure
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    console.error('Error fetching from Spotify:', error);
+    res.status(500).json({ error: 'Failed to fetch data from Spotify' });
   }
 };
-
-testConnection();

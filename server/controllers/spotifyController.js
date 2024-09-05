@@ -1,5 +1,5 @@
-const SpotifyWebApi = require('spotify-web-api-node');
-const { SpotifyToken } = require('../models/SpotifyTokens'); 
+const SpotifyWebApi = require('spotify-web-api-node')
+const { SpotifyToken } = require('../models/SpotifyToken')
 
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
@@ -44,18 +44,39 @@ const status = async (req, res) => {
 
 const search = async (req, res) => {
   const { query, type } = req.query;
+  console.log(SpotifyToken);
+  const token = await SpotifyToken.findOne();
+  
+  console.log(token);
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' }); // Return an error if no token is found
+  }
 
   if (!query || !type) {
-    return res.status(400).json({ error: 'Query and type parameter is required' });
+    return res.status(400).json({ error: 'Query and type parameters are required' });
   }
 
   try {
-    const data = await spotifyApi.searchTracks(query, [type]);
-    res.json(data.body);
+    // Set the token for the Spotify API
+    spotifyApi.setAccessToken(token.access_token); // Set the access token for the API
+
+    // Call the Spotify API with the correct method
+    const data = await spotifyApi.search(query, [type]);
+
+   
+    if (data.body[type + 's']) {
+      res.json(data.body[type + 's'].items); // Return items 
+    } else {
+      res.status(404).json({ error: 'No results found' });
+    }
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error('Error fetching data from Spotify:', err); 
+    res.status(500).json({ error: 'Failed to fetch data from Spotify', details: err.message });
   }
 };
+
+
 
 module.exports = {
   login,

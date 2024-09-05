@@ -1,33 +1,35 @@
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors')
 const querystring = require('querystring');
 const { Sequelize, DataTypes } = require('sequelize');
 require('dotenv').config();
+const spotifyRoutes = require('./routes/spotifyRoutes'); // Import the routes module
+
+
 
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3001;
 
 // Sequelize connect to the MySQL database
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
-  host: '127.0.0.1',
+  host: process.env.DB_HOST,
   dialect: 'mysql',
 });
 
-// Define the SpotifyToken model
-const SpotifyToken = sequelize.define('SpotifyToken', {
-  access_token: DataTypes.STRING,
-  token_type: DataTypes.STRING,
-  expires_in: DataTypes.BIGINT,
-  refresh_token: DataTypes.STRING,
-}, {
-  timestamps: true,
-});
+
 
 // Middleware to handle JSON requests
 app.use(express.json());
 
+// Use the routes from spotifyRoutes
+app.use('/api', spotifyRoutes);
+
+
+
 // Route to start the login process by redirecting to Spotify's authorization page
-app.get('/login', (req, res) => {
+app.get('/api/login', (req, res) => {
   const scope = 'user-read-private user-read-email'; // Add required scopes here
   const authUrl = `https://accounts.spotify.com/authorize?${querystring.stringify({
     response_type: 'code',
@@ -38,8 +40,25 @@ app.get('/login', (req, res) => {
   res.redirect(authUrl);
 });
 
+app.get('/api/status', async (req, res) => {
+  const token = req.headers.authorization.split(' ')[1]; // Extract the token
+
+  try {
+    const decoded = await verifyToken(token); // Verify the token
+    const storedToken = await getTokenFromDatabase(decoded.userId); // Fetch the token from DB
+
+    if (storedToken) {
+      return res.json({ valid: true, token: storedToken });
+    } else {
+      return res.status(401).json({ valid: false });
+    }
+  } catch (error) {
+    return res.status(401).json({ valid: false });
+  }
+});
+
 // Callback route that Spotify redirects to after the user authorizes the app
-app.get('/callback', async (req, res) => {
+app.get('/api/callback', async (req, res) => {
   const { code } = req.query;
 
   if (!code) {
@@ -77,7 +96,19 @@ app.get('/callback', async (req, res) => {
   }
 });
 
-// Starst the server
+app.delete('/api/logout', async (req, res) => {
+  const token = req.headers.authorization.split(' ')[1]; // Extract the token
+
+  try {
+    const decoded = await verifyToken(token); // Verify the token
+    await SpotifyToken.destroy({ where: { userId: decoded.userId } }); // Delete the token from DB
+    return res.status(204).send(); // No content response
+  } catch (error) {
+    return res.status(401).json({ message: 'Logout failed' });
+  }
+});
+
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

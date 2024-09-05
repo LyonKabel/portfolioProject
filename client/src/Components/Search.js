@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import '../Search.css';
+import LogoutButton from './LogoutButton.js'; // Import the LogoutButton component
 
 const searchSpotify = async (query, type, token) => {
   try {
-    const response = await fetch(`/search?query=${query}&type=${type}`, {
+    const response = await fetch(`http://localhost:3001/api/search?query=${query}&type=${type}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -23,12 +24,14 @@ const searchSpotify = async (query, type, token) => {
 
 const Search = () => {
   const [query, setQuery] = useState('');
-  const [searchType, setSearchType] = useState('track'); // Default search type
+  const [searchType, setSearchType] = useState('track'); 
   const [results, setResults] = useState([]);
   const [noResults, setNoResults] = useState(false);
 
   const handleSearch = async () => {
     const token = localStorage.getItem('jwt');
+    console.log("Retrieved token:", token);
+    console.log('Searching with:', { query, searchType, token });
     const results = await searchSpotify(query, searchType, token);
 
     if (results.length === 0) {
@@ -41,6 +44,8 @@ const Search = () => {
 
   return (
     <div className="search-page">
+      <LogoutButton /> {/* Add the Logout button here */}
+
       <div className="search-form-container">
         <input
           type="text"

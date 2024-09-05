@@ -8,7 +8,7 @@ function Callback() {
     const urlParams = new URLSearchParams(window.location.search);
     console.log(urlParams)
 
-      // Log all query parameters
+      
   for (const [key, value] of urlParams.entries()) {
     console.log(`Key: ${key}, Value: ${value}`);
   }

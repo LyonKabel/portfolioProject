@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom'; 
 import Search from './Components/Search';
 import Login from './Components/Login';
 import Callback from './Components/Callback';
 import './App.css'; 
+
 function App() {
   const [token, setToken] = useState(localStorage.getItem('jwt') || '');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,7 +17,7 @@ function App() {
       }
 
       try {
-        const response = await fetch('http://localhost:3000/status', {
+        const response = await fetch('http://localhost:3001/api/status', { 
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -47,8 +47,6 @@ function App() {
       <Route path="/" element={isAuthenticated ? <Search /> : <Navigate to="/login" />} />
       <Route path="/search" element={<Search />} />
       <Route path="/callback" element={<Callback />} />
-      
-
     </Routes>
   );
 }
