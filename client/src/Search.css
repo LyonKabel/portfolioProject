@@ -1,92 +1,147 @@
 /* General styling for the search page */
 .search-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #121212; /* Dark background */
-    color: #ffffff; /* Light text color */
-    min-height: 100vh;
-    padding: 20px;
-  }
-  
-  /* Styling for the search form container */
-  .search-form-container {
-    width: 100%;
-    max-width: 600px;
-    padding: 20px;
-    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
-    border-radius: 12px;
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.7); /* Stronger shadow */
-    margin-bottom: 20px; /* Space between form and results */
-  }
-  
-  /* Styling for input fields */
-  .search-input {
-    width: calc(100% - 24px); /* Adjust width to fit within the form, considering padding */
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: 1px solid #1db954; /* Green border */
-    background-color: #333; /* Dark input background */
-    color: #ffffff; /* Light text color */
-  }
-  
-  /* Styling for the search button */
-  .search-button {
-    width: 100%;
-    padding: 15px;
-    border-radius: 8px;
-    border: none;
-    background-color: #1db954; 
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .search-button:hover {
-    background-color: #1ed760; 
-  }
-  
-  /* Styling for the no results message */
-  .no-results {
-    color: #ff0000; /* Red color for emphasis */
-    margin-top: 10px; /* Space above the message */
-  }
-  
-  /* Styling for the song list */
-  .song-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    max-width: 600px; /* Ensure the list doesn't stretch too wide */
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #121212; /* Dark background */
+  color: #ffffff; /* Light text color */
+  min-height: 100vh;
+  padding: 20px;
+}
 
-  .song-item {
-    margin-bottom: 10px;
+/* Styling for the search form container */
+.search-form-container {
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+  border-radius: 12px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.7); /* Stronger shadow */
+  margin-bottom: 20px; /* Space between form and results */
+}
+
+/* Styling for input fields */
+.search-input {
+  width: calc(100% - 24px); /* Adjust width to fit within the form, considering padding */
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #1db954; /* Green border */
+  background-color: #333; /* Dark input background */
+  color: #ffffff; /* Light text color */
+}
+
+/* Styling for the search button */
+.search-button {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  border: none;
+  background-color: #1db954; 
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #1ed760; 
+}
+
+/* Styling for the no results message */
+.no-results {
+  color: #ff0000; /* Red color for emphasis */
+  margin-top: 10px; /* Space above the message */
+}
+
+/* Container for search results */
+.results-container {
+  display: flex; /* Use flexbox for layout */
+  justify-content: space-between; /* Space out the items */
+  width: 100%;
+  max-width: 1200px; /* Maximum width for the results */
+}
+
+/* Styling for the results sections */
+.section {
+  flex: 1; /* Allow sections to grow equally */
+  margin: 0 10px; /* Space between sections */
+}
+
+/* Styling for the results grid */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three columns */
+  gap: 10px; /* Space between items */
+}
+
+
+
+/* Styling for each result item */
+.result-item {
+  background-color: #222; /* Darker background for result items */
+  border-radius: 8px;
+  overflow: hidden; /* Prevents overflow of images */
+  text-align: center;
+  max-width: 200px; /* Fixed size for result items */
+}
+
+/* Image styling */
+.result-image {
+  width: 100%;
+  height: auto; /* Maintain aspect ratio */
+}
+
+/* Info styling */
+.result-info {
+  padding: 10px;
+}
+
+/* Styling for category names */
+.categories h2 {
+  font-size: 24px; /* Bigger font for categories */
+  font-weight: bold; /* Bold category header */
+  margin-bottom: 10px; /* Space below category header */
+
+  
+}
+
+h2{
+  color: #1db954
+}
+p{
+  font-weight: bolder;
+  font-size: 1.3rem;
+  color:white
+}
+
+.categories ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.categories li {
+  font-size: 20px; /* Bigger font for category items */
+  font-weight: bold; /* Bold category items */
+  margin: 5px 0; /* Space between category items */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-form-container {
+    padding: 20px;
   }
-  
-  .song-item a {
-    color: #1db954; 
-    text-decoration: none;
-    transition: color 0.3s ease;
+
+  .search-button {
+    padding: 12px;
   }
-  
-  .song-item a:hover {
-    color: #1ed760; 
+
+  .results-container {
+    flex-direction: column; /* Stack results on smaller screens */
   }
-  
- 
-  @media (max-width: 768px) {
-    .search-form-container {
-      padding: 20px;
-    }
-  
-    .search-button {
-      padding: 12px;
-    }
+
+  .section {
+    margin: 10px 0; /* Space for stacked sections */
   }
-  
+}

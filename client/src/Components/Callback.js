@@ -6,26 +6,17 @@ function Callback() {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    console.log(urlParams)
-
-      
-  for (const [key, value] of urlParams.entries()) {
-    console.log(`Key: ${key}, Value: ${value}`);
-  }
-
-    const token = urlParams.get('code');
-    console.log(token)
-
-    console.log("Token from URL:", token); 
-
-    if (token) {
-      localStorage.setItem('jwt', token);
-      console.log("Token saved to localStorage");
-      navigate('/search'); 
-    } else {
-      console.log("No token found, redirecting to login"); 
-      navigate('/login'); 
+    const code = urlParams.get('code');
+    if (code) {
+      fetch(`http://localhost:3001/api/login?code=${code}`)
+        .then((res) => res.json())
+        .then((data) => {
+          localStorage.setItem('jwt', data.jwt);
+          navigate('/search');
+        })
+        .catch(() => navigate('/login'));
     }
+    
   }, [navigate]);
 
   return <div>Loading...</div>;

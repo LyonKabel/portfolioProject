@@ -1,86 +1,101 @@
-const SpotifyWebApi = require('spotify-web-api-node')
-const { SpotifyToken } = require('../models/SpotifyToken')
+const SpotifyWebApi = require('spotify-web-api-node');
+const jwt = require('jsonwebtoken');
+const { sequelize, DataTypes } = require('../db');
+const SpotifyToken = require('../models/SpotifyToken')(sequelize, DataTypes);
 
+// Spotify API setup
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  redirectUri: process.env.SPOTIFY_REDIRECT_URI,  
 });
 
+// Login and token exchange
 const login = async (req, res) => {
+  const { code } = req.query;
+  console.log("code" , code)
+  if (!code) return res.status(400).json({ error: 'Authorization code is missing.' });
+
   try {
-    const data = await spotifyApi.clientCredentialsGrant();
+    // Exchange authorization code for tokens
+    const data = await spotifyApi.authorizationCodeGrant(code);
     const token = data.body;
 
+    // Save the token in DB
     await SpotifyToken.upsert({
       access_token: token.access_token,
+      refresh_token: token.refresh_token,
       token_type: token.token_type,
       expires_in: token.expires_in,
-      refresh_token: token.refresh_token
     });
 
-    spotifyApi.setAccessToken(token.access_token);
-    res.json({ message: 'Access token retrieved and saved successfully' });
+    // Create JWT token
+    const jwtToken = jwt.sign({ userId: 'spotify_user' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.json({ access_token: token.access_token, jwt: jwtToken });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to retrieve and save access token', details: err.message });
-  }
+    console.error('Error during Spotify login:', JSON.stringify(err, null, 2)); // Log detailed error
+    res.status(500).json({ error: 'Failed to retrieve access token', details: err.message });
+  }  
 };
 
-const auth = (req, res) => {
-  res.send('Auth endpoint');
-};
-
+// Check token status
 const status = async (req, res) => {
   try {
-    const tokenRecord = await SpotifyToken.findOne();
-    if (tokenRecord) {
-      res.json({ token: tokenRecord });
+    const token = await SpotifyToken.findOne();
+    if (token) {
+      res.json({ token });
     } else {
-      res.status(500).json({ error: 'No token found in the database' });
+      res.status(404).json({ error: 'No token found' });
     }
   } catch (err) {
-    res.status(500).json({ error: 'Error retrieving token from the database' });
+    res.status(500).json({ error: 'Error retrieving token', details: err.message });
   }
 };
+
+const logout = async (req, res) => {
+  try {
+    // Delete all tokens from the database
+    await SpotifyToken.destroy({ where: {} }); // Delete all records
+    res.status(200).json({ message: 'Successfully logged out and cleared all tokens.' });
+  } catch (err) {
+    console.error('Error during logout:', err);
+    res.status(500).json({ error: 'Failed to log out', details: err.message });
+  }
+};
+
 
 const search = async (req, res) => {
   const { query, type } = req.query;
-  console.log(SpotifyToken);
-  const token = await SpotifyToken.findOne();
-  
-  console.log(token);
-
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' }); // Return an error if no token is found
-  }
-
-  if (!query || !type) {
-    return res.status(400).json({ error: 'Query and type parameters are required' });
-  }
+  if (!query || !type) return res.status(400).json({ error: 'Query and type are required' });
 
   try {
-    // Set the token for the Spotify API
-    spotifyApi.setAccessToken(token.access_token); // Set the access token for the API
+    const tokenRecord = await SpotifyToken.findOne();
+    if (!tokenRecord) return res.status(401).json({ error: 'No token found' });
 
-    // Call the Spotify API with the correct method
+    spotifyApi.setAccessToken(tokenRecord.access_token);  // Set the access token
     const data = await spotifyApi.search(query, [type]);
 
-   
-    if (data.body[type + 's']) {
-      res.json(data.body[type + 's'].items); // Return items 
-    } else {
-      res.status(404).json({ error: 'No results found' });
-    }
+    // Log the entire response from Spotify
+    console.log('Spotify API Response:', JSON.stringify(data, null, 2));
+
+    const results = {
+      albums: data.body.albums?.items || [],
+      tracks: data.body.tracks?.items || [],
+      artists: data.body.artists?.items || [],
+    };
+
+    res.json(results);
   } catch (err) {
-    console.error('Error fetching data from Spotify:', err); 
-    res.status(500).json({ error: 'Failed to fetch data from Spotify', details: err.message });
+    console.error('Spotify search error:', err); // Log detailed error
+    res.status(500).json({ error: 'Failed to search Spotify', details: err.message });
   }
 };
 
 
 
-module.exports = {
-  login,
-  auth,
-  status,
-  search
-};
+
+
+
+
+module.exports = { login, status, search, logout };
