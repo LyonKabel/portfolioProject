@@ -138,10 +138,10 @@ p{
   }
 
   .results-container {
-    flex-direction: column; /* Stack results on smaller screens */
+    flex-direction: column; 
   }
 
   .section {
-    margin: 10px 0; /* Space for stacked sections */
+    margin: 10px 0; 
   }
 }

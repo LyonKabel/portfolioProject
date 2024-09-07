@@ -29,7 +29,7 @@ body {
 
 /* Styling for input fields */
 .login-input {
-  width: calc(100% - 24px); /* Adjust width to fit within the form, considering padding */
+  width: calc(100% - 24px); 
   padding: 12px;
   margin-bottom: 20px;
   border-radius: 8px;

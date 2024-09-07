@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Sequelize, DataTypes } = require('sequelize');
-const spotifyRoutes = require('./routes/spotifyRoutes'); // Import the routes module
+const spotifyRoutes = require('./routes/spotifyRoutes'); 
 const PORT = process.env.PORT || 3001;
 
 const app = express();
